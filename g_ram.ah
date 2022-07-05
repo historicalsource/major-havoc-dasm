@@ -1,0 +1,209 @@
+;*************************************************************
+	.sbttl "RPM RAM Allocation"
+;*************************************************************
+;* RAM Equates for RPM and game variables                    *
+;*************************************************************
+	.org $0000	
+	
+irqcnt	.block	1
+framecnt	.block	1
+eflg0		.block	1 		
+eflg1		.block	1
+eflg2		.block	1
+eflg3		.block	1
+eflg4		.block	1
+eflg5		.block	1
+eflg6		.block	1
+eflg7		.block	1
+cur_snd	.block	1
+r_nbuf	.block	2
+r_tunel	.block	1
+r_tuneh	.block	1
+r_pokaddr	.block	2
+r_temp2	.block	2
+r_sysi	.block	1
+
+#IF ___tlk != 0
+;Speech Params
+ti_addr	.block	2
+ti_len	.block	2
+ti_stat	.block	1
+ti_count	.block	1
+ti_irqcnt	.block	1
+
+#ENDIF
+
+;**********************************************
+;* Game Specific Variable Definition
+;**********************************************
+	
+temp1		.block	2
+temp2		.block	2		;A few temps
+eerdy		.block	1		;=80 if stats ready to send
+eesrce	.block	2		;Next byte source pointer
+eezflg	.block	1		;Zero flag for erase
+eerequ	.block	1		;Action request
+eerwrq	.block	1		;Write request
+eebad		.block	1		;If a bit is set, that corresponding request came back bad (csum error)
+eeflg		.block	1		;Busy Flag
+eebc		.block	1		;Byte Index to source data
+eex		.block	1		;Byte offset into eerom for next access
+eecnt		.block	1		;Byte offset into eerom for last access
+eesel		.block	1		;Index code for current 'batch' operation
+eecs		.block	1		;Checksum (operation)
+newreq	.block	1		;Request to clobber scores
+reqwai	.block	1		;How long to wait until we re-init the eerom
+cnt1		.block	1		;Coin Counter 1	
+cnt2		.block	1		;Duh?
+
+;***********************************************************
+;* RPM RAM will begin again at $0200
+;***********************************************************
+.org $0200
+
+ch_sid		.block	numchannel
+ch_eflg		.block	numchannel
+ch_tuneptr_l	.block	numchannel
+ch_tuneptr_h	.block	numchannel
+ch_mys_24		.block	numchannel
+ch_mys_25		.block	numchannel
+ch_mys_26		.block	numchannel
+ch_mys_27		.block	numchannel
+ch_mys_28		.block	numchannel
+ch_mys_29		.block	numchannel
+ch_mys_2a		.block	numchannel
+ch_mys_2b		.block	numchannel
+ch_mys_2c		.block	numchannel
+ch_localpc		.block	numchannel
+ch_pri		.block	numchannel
+ch_mys_2f		.block	numchannel
+ch_mys_30		.block	numchannel
+ch_mys_31		.block	numchannel
+ch_mys_32		.block	numchannel
+ch_mys_33		.block	numchannel
+ch_mys_34		.block	numchannel
+ch_mys_35		.block	numchannel
+ch_mys_36		.block	numchannel
+ch_mys_37		.block	numchannel
+ch_mys_38		.block	numchannel
+ch_mys_39		.block	numchannel
+ch_mys_3a		.block	numchannel
+ch_mys_3b		.block	numchannel
+ch_mys_3c		.block	numchannel
+ch_mys_3d		.block	numchannel
+ch_mys_3e		.block	numchannel
+ch_mys_3f		.block	numchannel
+ch_mys_40		.block	numchannel
+ch_jmppc_l		.block	numchannel
+ch_jmppc_h		.block	numchannel
+ch_jmplocpc		.block	numchannel
+ch_looppc_l		.block	numchannel
+ch_looppc_h		.block	numchannel
+ch_looplocalpc	.block	numchannel
+ch_loopcount	.block	numchannel
+ch_mys_48		.block	numchannel
+ch_mys_49		.block	numchannel
+ch_mys_4a		.block	numchannel
+ch_mys_4b		.block	numchannel
+ch_que		.block	1
+po_4c1		.block	1
+po_4c2		.block	1
+po_4c3		.block 	1
+po_4c4		.block	1
+po_4c5		.block	1
+po_4c6		.block	1
+po_odd_cont		.block	1
+po_even_cont	.block	1
+po_4c9		.block	1
+po_odd_freq		.block	1
+po_even_freq	.block	1
+po_4cc		.block	1
+po_4cd		.block	1
+po_4ce		.block 	1
+po_4cf		.block	1
+po_4d0		.block	1
+po_4d1		.block	1
+po_4d2		.block	1
+po_4d3		.block	1
+po_4d4		.block	1
+po_4d5		.block	1
+
+;********************************************************************
+;* Put more game specific variables here!!
+;********************************************************************
+gw_queue		.block	qsize	
+gw_i			.block	1
+gw_ia			.block	1
+
+reportf		.block	1
+offset		.block	1
+
+gr_queue		.block	qsize
+gr_i			.block	1
+gr_ia			.block	1
+r_nptr		.block	1
+datnum		.block	1
+datflg		.block	1
+
+;********************************************************************
+;* Game Variables Finished in here
+;********************************************************************
+
+
+
+; Variables used for immediate mode only
+#IF ___imm == 1
+imm_id		.block	1
+iarg			.block	1
+#ENDIF
+
+; Variables used for speech only
+#IF ___tlk == 1
+
+tibufcnt		.block	1
+tibufact 		.block	1
+tibuffer		.block	tibufsize
+tiframe		.block	1
+
+#ENDIF
+
+;*****************************************************************
+; RAM Allocation for Self Testing
+;*****************************************************************
+	.org $0700
+	
+vram		.block	6	;$0700
+vadl0		.block	1	;$0706
+vadh0		.block	18 	;$0707
+vadl1		.block	1	;$0719
+vadh1		.block	10	;$071a
+vadl2		.block	1	;$0724
+vadh2		.block	2	;$0725
+vadl3		.block	1	;$0727
+vadh3		.block	1	;$0728
+
+	.org	$07f0
+	
+tstart	.block	2
+tend		.block	2
+rambad	.block	4
+
+	.org $0f00
+	
+starts
+warps		.block	2		;Number of warps done
+extlie	.block	2		;Extra Lives Earned	
+game1		.block	4		;1 Player Games
+game2		.block	4		;2 Player Games
+atime1	.block	4
+atime2	.block	4
+spdt		.block	2
+lddt		.block	2
+mzdt		.block	2
+mzd2		.block	2
+mzstats	.block	8*15	
+cksum1	.block	1		;Checksum for above
+initl		.block	numit
+cksum2	.block	1
+hscore	.block	numhs
+cksum3	.block	1
